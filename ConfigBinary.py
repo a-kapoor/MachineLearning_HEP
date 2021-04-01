@@ -1,6 +1,4 @@
 
-#Varlist=["Lep1_pt","Lep2_pt","Lep1_eta","Lep2_eta","Lep1_phi","Lep2_phi"] #Variables
-
 Varlist=["Lep1_pt","Lep2_pt","Lep1_eta","Lep2_eta","Lep1_phi","Lep2_phi","mT_lep2","mT_lep1","mindr_lep1_jet","mindr_lep2_jet","mTTH_2lss","dEtaBB_2lss","dEtaLL_BBframe_2lss","dEtaBB_LLframe_2lss","avg_dr_jet","nSelJets","met","met_phi"]
 
 

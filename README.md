@@ -3,7 +3,7 @@
 ### Clone
 
 ```
-git clone 
+git clone https://github.com/akapoorcern/MachineLearning_HEP.git
 
 ```
 
@@ -11,6 +11,8 @@ git clone
 
 ```
 source /cvmfs/sft.cern.ch/lcg/views/LCG_97python3/x86_64-centos7-gcc8-opt/setup.sh
+
+```
 
 ### All you need to do is to edit the Config file with the settings for your analysis
 

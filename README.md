@@ -23,7 +23,13 @@ source /cvmfs/sft.cern.ch/lcg/views/LCG_97python3/x86_64-centos7-gcc8-opt/setup.
 ### and then run 
 
 ``` 
-python MLTrainer-MultiClass.py ConfigBinary #without the .py on config
+python MLTrainer-MultiClass.py <ConfigName> #without the .py on config
+
+```
+####  example
+
+```
+python MLTrainer-MultiClass.py ConfigMultiClass
 
 ```
 

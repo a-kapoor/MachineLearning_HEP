@@ -9,27 +9,28 @@ Test_selection_criteria = 'Entry$%2!=0' #Odd events
 
 NClass=2 #Binary Classification
 
-output_directory='./result/'
+output_directory='./result_Multilocal/'
 
 inputs_file_path = '/eos/user/a/akapoor/SWAN_projects/ttHCPnewStrategy/' #Where are the input files?
 
-keys=['ttH','ttJ']
+keys=['ttH','ttW']
+keycolor=['red','green']
 
 sampleNames={'ttH':['ttH'],
-             'ttJ':['ttJ']} #Names of process (Can be same as keys)
+             'ttW':['ttW']} #Names of process (Can be same as keys)
 
 
 fileNames={'ttH':['TTH_ctcvcp_new_Friend_Run2'],
-           'ttJ':['TTJets_DiLepton_Friend_Run2']} #File names without the ".root"
+           'ttW':['TTWToLNu_fxfx_Friend_Run2']} #File names without the ".root"
 
-target={'ttH':0,'ttJ':1}
+target={'ttH':0,'ttW':2}
 
-sampleWeightDNN={'ttH':1,'ttJ':1} #Will go to DNN loss
-sampleWeightROC={'ttH':1,'ttJ':1} #Will be used while plotting ROC
+sampleWeightDNN={'ttH':1,'ttW':1} #Will go to DNN loss
+sampleWeightROC={'ttH':1,'ttW':1} #Will be used while plotting ROC
 
 ROCMask = 0.7 #ROC plot will start at this signal eff
 
-DNNDict={'epochs':100, 'batch_size':100, 'earlyStop':True}
+DNNDict={'epochs':5, 'batch_size':1000, 'earlyStop':True}
 
 def mymodel(num_variables,optimizer,nClasses):
     from tensorflow.keras.models import Sequential
@@ -47,3 +48,4 @@ def mymodel(num_variables,optimizer,nClasses):
     if optimizer=='Nadam':
         model.compile(loss='categorical_crossentropy',optimizer=Nadam(lr=0.001),metrics=['acc'])
     return model
+    

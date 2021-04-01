@@ -8,6 +8,7 @@
 # coding: utf-8
 
 import os
+import sys
 import tempfile
 os.environ['MPLCONFIGDIR'] = tempfile.mkdtemp()
 import matplotlib
@@ -48,12 +49,16 @@ from tensorflow.keras.wrappers.scikit_learn import KerasClassifier
 from tensorflow.keras.callbacks import EarlyStopping
 from root_numpy import root2array, tree2array
 
-import Config as Conf 
+#import Config as Conf
+#import ConfigMultiClass as Conf
 seed = 7
 ##small changes
 np.random.seed(7)
 rng = np.random.RandomState(31337)
 timestr=time.strftime("%Y%m%d-%H%M%S")
+
+def prGreen(prt): print("\033[92m {}\033[00m" .format(prt))
+    
 def load_data(inputPath,variables,criteria,keysf,sampleNamesf,fileNamesf,targetf):
     # Load dataset to .csv format file
     my_cols_list=variables+['process', 'key', 'target', 'sampleWeight']
@@ -93,53 +98,40 @@ def load_data(inputPath,variables,criteria,keysf,sampleNamesf,fileNamesf,targetf
             data = data.append(chunk_df, ignore_index=True)
             tfile.Close()
         if len(data) == 0 : continue
-        n1 = len(data.iloc[(data.target.values == 0) & (data.key.values==key) ])
-        n2 = len(data.iloc[(data.target.values == 1) & (data.key.values==key) ])
         processfreq = data.groupby('key')
-        samplefreq = data.groupby('process')
-            
+        samplefreq = data.groupby('process')         
         print("TotalWeights = %f" % (data.iloc[(data.key.values==key)]["sampleWeight"].sum()))
         nNW = len(data.iloc[(data["sampleWeight"].values < 0) & (data.key.values==key) ])
         print(key, "events with -ve weights", nNW)
     print('<load_data> data columns: ', (data.columns.values.tolist()))
     n = len(data)
-    n1 = len(data.iloc[data.target.values == 0])
-    n2 = len(data.iloc[data.target.values == 1])
     return data
 
-def MakePlots(y_train, y_test, y_test_pred, y_train_pred, Wt_train, Wt_test,ROCMask,keys,od):
+def MakePlots(y_train, y_test, y_test_pred, y_train_pred, Wt_train, Wt_test,ROCMask,keys,od,keycolor):
     from sklearn.metrics import roc_curve, auc
-    fig, axes = plt.subplots(1, 2, figsize=(10,5))
+    fig, axes = plt.subplots(1, len(keys), figsize=(5*len(keys),5))
 
-    figMVA, axesMVA = plt.subplots(1, 2, figsize=(10, 5))
+    figMVA, axesMVA = plt.subplots(1, len(keys), figsize=(5*len(keys), 5))
 
-    for i in range(2):
+    for i in range(len(keys)):
         print(i)
-        if i==0:
-            ax=axes[0]
-            axMVA=axesMVA[0]
-        if i==1:
-            ax=axes[1]
-            axMVA=axesMVA[1]
+        ax=axes[i]
+        axMVA=axesMVA[i]
         nodename=keys
         trainkeys = [x + '_train' for x in keys]
         testkeys = [x + '_test' for x in keys]
-    
-        axMVA.hist([y_test_pred[:, i][(y_test[:, 0]==1)],
-                    y_test_pred[:, i][(y_test[:, 1]==1)]],
-                   bins=np.linspace(0, 1, 21),label=testkeys,
-                   weights=[Wt_test[(y_test[:, 0]==1)]/np.sum(Wt_test[(y_test[:, 0]==1)]),
-                            Wt_test[(y_test[:, 1]==1)]/np.sum(Wt_test[(y_test[:, 1]==1)])],
-                   histtype='step',linewidth=4,color=['red','green'])
-        axMVA.hist([y_train_pred[:, i][(y_train[:, 0]==1)],
-                    y_train_pred[:, i][(y_train[:, 1]==1)]],
-                   bins=np.linspace(0, 1, 21),label=trainkeys,
-                   weights=[Wt_train[(y_train[:, 0]==1)]/np.sum(Wt_train[(y_train[:, 0]==1)]),
-                            Wt_train[(y_train[:, 1]==1)]/np.sum(Wt_train[(y_train[:, 1]==1)])],
-                   histtype='stepfilled',alpha=0.2,linewidth=1,color=['red','green'])
-        axMVA.set_title('MVA: Node '+str(nodename[i]),fontsize=20)
-        axMVA.legend(loc="upper right",fontsize=10)
-        axMVA.set_xlim([0, 1])
+        for j in range(len(keys)):
+            axMVA.hist(y_test_pred[:, i][(y_test[:, j]==1)],
+                       bins=np.linspace(0, 1, 21),label=testkeys[j],
+                       weights=Wt_test[(y_test[:, j]==1)]/np.sum(Wt_test[(y_test[:, j]==1)]),
+                       histtype='step',linewidth=4,color=keycolor[j])
+            axMVA.hist(y_train_pred[:, i][(y_train[:, j]==1)],
+                       bins=np.linspace(0, 1, 21),label=trainkeys[j],
+                       weights=Wt_train[(y_train[:, j]==1)]/np.sum(Wt_train[(y_train[:, j]==1)]),
+                       histtype='stepfilled',alpha=0.2,linewidth=1,color=keycolor[j])
+            axMVA.set_title('MVA: Node '+str(nodename[i]),fontsize=20)
+            axMVA.legend(loc="upper right",fontsize=10)
+            axMVA.set_xlim([0, 1])
         
         fpr, tpr, th = roc_curve(y_test[:, i], y_test_pred[:, i],sample_weight=Wt_test)
         fpr_tr, tpr_tr, th_tr = roc_curve(y_train[:, i], y_train_pred[:, i],sample_weight=Wt_train)
@@ -164,6 +156,29 @@ def MakePlots(y_train, y_test, y_test_pred, y_train_pred, Wt_train, Wt_test,ROCM
         ax.legend(loc="upper left",fontsize=10)
     fig.savefig(od+"/ROC"+timestr+".pdf")
     figMVA.savefig(od+"/output"+timestr+".pdf")
+
+def in_ipynb():
+    try:
+        cfg = get_ipython().config
+        print(cfg)
+        if 'jupyter' in cfg['IPKernelApp']['connection_file']:
+            return True
+        else:
+            return False
+    except NameError:
+        return False
+
+
+if in_ipynb(): 
+    print("In IPython")
+    exec("import Config as Conf")
+    TrainConfig="Config"
+else:
+    TrainConfig=sys.argv[1]
+    prGreen("Importing settings from "+ TrainConfig.replace("/", "."))
+    #exec("from "+TrainConfig+" import *")
+    importConfig=TrainConfig.replace("/", ".")
+    exec("import "+importConfig+" as Conf")
 
 
 # In[2]:
@@ -296,9 +311,9 @@ print('<train-DNN> Training features: ', training_columns)
 
 # Select data from columns under the remaining column headers in traindataset
 X_train = traindataset[training_columns].astype('float32')
-print("Training numbers:"+str(len(traindataset)))
-print("Training numbers:"+str(len(traindataset[training_columns])))
-print("Training numbers:"+str(len(X_train)))
+print("Training events:"+str(len(traindataset)))
+print("Training events:"+str(len(traindataset[training_columns])))
+print("Training events:"+str(len(X_train)))
 Y_train = traindataset.target.astype(int)
 X_test = valdataset[training_columns].astype('float32')
 Y_test = valdataset.target.astype(int)
@@ -385,7 +400,7 @@ model.summary()
 
 
 # In[18]:
-MakePlots(y_train=Y_train, y_test=Y_test, y_test_pred=result_probs_test, y_train_pred=result_probs, Wt_train=train_weightsROC, Wt_test=test_weightsROC,ROCMask=Conf.ROCMask,keys=Conf.keys,od=Conf.output_directory)
+MakePlots(y_train=Y_train, y_test=Y_test, y_test_pred=result_probs_test, y_train_pred=result_probs, Wt_train=train_weightsROC, Wt_test=test_weightsROC,ROCMask=Conf.ROCMask,keys=Conf.keys,od=Conf.output_directory,keycolor=Conf.keycolor)
 
 
 # In[ ]:

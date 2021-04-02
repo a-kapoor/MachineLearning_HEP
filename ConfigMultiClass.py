@@ -30,7 +30,7 @@ sampleWeightROC={'ttH':1,'ttJ':1,'ttW':1} #Will be used while plotting ROC
 
 ROCMask = 0.7 #ROC plot will start at this signal eff
 
-DNNDict={'epochs':5, 'batch_size':1000, 'earlyStop':True}
+DNNDict={'epochs':100, 'batch_size':1000, 'earlyStop':True}
 
 def mymodel(num_variables,optimizer,nClasses):
     from tensorflow.keras.models import Sequential

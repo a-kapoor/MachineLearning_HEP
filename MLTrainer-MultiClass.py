@@ -171,8 +171,8 @@ def in_ipynb():
 
 if in_ipynb(): 
     print("In IPython")
-    exec("import Config as Conf")
-    TrainConfig="Config"
+    exec("import ConfigMultiClass as Conf")
+    TrainConfig="ConfigMultiClass"
 else:
     TrainConfig=sys.argv[1]
     prGreen("Importing settings from "+ TrainConfig.replace("/", "."))
@@ -297,8 +297,10 @@ datate['sampleWeightROC']=1
 
 for key,target in zip(Conf.keys,Conf.target):
     datatr.loc[datatr.target == target, 'sampleWeightDNN']= Conf.sampleWeightDNN[key]
+    #datatr.loc[datatr.target == target, 'sampleWeightDNN']=datatr.loc[datatr.target == target, 'sampleWeightDNN'] / datatr.loc[datatr.target == target, 'sampleWeightDNN'].sum()
     datate.loc[datate.target == target, 'sampleWeightDNN']= Conf.sampleWeightDNN[key]
     datatr.loc[datatr.target == target, 'sampleWeightROC']= Conf.sampleWeightROC[key]
+    #datatr.loc[datatr.target == target, 'sampleWeightROC']=datatr.loc[datatr.target == target, 'sampleWeightROC'] / datatr.loc[datatr.target == target, 'sampleWeightROC'].sum()
     datate.loc[datate.target == target, 'sampleWeightROC']= Conf.sampleWeightROC[key]
 
 # Create statistically independant lists train/test data (used to train/evaluate the network)
@@ -401,6 +403,47 @@ model.summary()
 
 # In[18]:
 MakePlots(y_train=Y_train, y_test=Y_test, y_test_pred=result_probs_test, y_train_pred=result_probs, Wt_train=train_weightsROC, Wt_test=test_weightsROC,ROCMask=Conf.ROCMask,keys=Conf.keys,od=Conf.output_directory,keycolor=Conf.keycolor)
+
+
+# In[ ]:
+
+
+
+
+
+# In[6]:
+
+
+#datatr["predTarget"] = [list(p).index(max(p)) for p in model.predict(np.array(X_train))]
+#datate["predTarget"] = [list(p).index(max(p)) for p in model.predict(np.array(X_test))]
+
+
+# In[7]:
+
+
+datatr["predTarget"] = result_classes
+datate["predTarget"] = result_classes_test
+
+
+# In[8]:
+
+
+import seaborn as sns
+confusion_matrix = pd.crosstab(datatr["target"], datatr["predTarget"], rownames=['Actual'], colnames=['Predicted'])
+fig, axes = plt.subplots(1, 1, figsize=(5, 5))
+sns_plot=sns.heatmap(confusion_matrix,cmap="YlGnBu", annot=True, cbar=False,fmt='g',ax=axes)
+plt.savefig(od+"/confusion_matrix_train.png")
+
+confusion_matrix = pd.crosstab(datate["target"], datate["predTarget"], rownames=['Actual'], colnames=['Predicted'])
+fig, axes = plt.subplots(1, 1, figsize=(5, 5))
+sns_plot=sns.heatmap(confusion_matrix,cmap="YlGnBu", annot=True, cbar=False,fmt='g',ax=axes)
+plt.savefig(od+"/confusion_matrix_test.png")
+
+
+# In[ ]:
+
+
+
 
 
 # In[ ]:

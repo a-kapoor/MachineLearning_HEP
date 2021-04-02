@@ -11,22 +11,22 @@ output_directory='./result/'
 
 inputs_file_path = '/eos/user/a/akapoor/SWAN_projects/ttHCPnewStrategy/' #Where are the input files?
 
-keys=['ttH','ttJ','ttW']
+keys=['ttH','tHQ','ttW']
 keycolor=['red','blue','green']
 
 sampleNames={'ttH':['ttH'],
-             'ttJ':['ttJ'],
+             'tHQ':['tHQ'],
              'ttW':['ttW']} #Names of process (Can be same as keys)
 
 
 fileNames={'ttH':['TTH_ctcvcp_new_Friend_Run2'],
-           'ttJ':['TTJets_DiLepton_Friend_Run2'],
+           'tHQ':['THQ_ctcvcp_new_Friend_Run2'],
            'ttW':['TTWToLNu_fxfx_Friend_Run2']} #File names without the ".root"
 
-target={'ttH':0,'ttJ':1,'ttW':2}
+target={'ttH':0,'tHQ':1,'ttW':2}
 
-sampleWeightDNN={'ttH':1,'ttJ':1,'ttW':1} #Will go to DNN loss
-sampleWeightROC={'ttH':1,'ttJ':1,'ttW':1} #Will be used while plotting ROC
+sampleWeightDNN={'ttH':1,'tHQ':1,'ttW':1} #Will go to DNN loss
+sampleWeightROC={'ttH':1,'tHQ':1,'ttW':1} #Will be used while plotting ROC
 
 ROCMask = 0.7 #ROC plot will start at this signal eff
 

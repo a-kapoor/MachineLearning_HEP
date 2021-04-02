@@ -440,10 +440,21 @@ sns_plot=sns.heatmap(confusion_matrix,cmap="YlGnBu", annot=True, cbar=False,fmt=
 plt.savefig(od+"/confusion_matrix_test.png")
 
 
-# In[ ]:
+# In[26]:
 
 
-
+original_stdout = sys.stdout
+from sklearn import metrics
+with open(od+'/ClassificationReport.txt', 'w') as f:
+    sys.stdout = f # Change the standard output to the file we created.
+    print("-----------------")
+    print("Train Dataset Classification Report")
+    print(metrics.classification_report(traindataset.target.astype(int), result_classes,target_names=Conf.keys))
+    print("-----------------")
+    print("Test Dataset Classification Report")
+    print(metrics.classification_report(valdataset.target.astype(int), result_classes_test,target_names=Conf.keys))
+    print("-----------------")
+    sys.stdout = original_stdout
 
 
 # In[ ]:

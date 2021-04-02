@@ -1,22 +1,19 @@
 
-Varlist=["Lep1_pt","Lep2_pt","Lep1_eta","Lep2_eta","Lep1_phi","Lep2_phi","mT_lep2","mT_lep1","mindr_lep1_jet","mindr_lep2_jet","mTTH_2lss","dEtaBB_2lss","dEtaLL_BBframe_2lss","dEtaBB_LLframe_2lss","avg_dr_jet","nSelJets","met","met_phi"]
-
-
-Train_selection_criteria = 'Entry$%2==0' #Even events
-Test_selection_criteria = 'Entry$%2!=0' #Odd events
-
-NClass=3 #Multi Classification
-
 output_directory='./result/'
 
 inputs_file_path = '/eos/user/a/akapoor/SWAN_projects/ttHCPnewStrategy/' #Where are the input files?
 
+NClass=3 #Multi Classification
 keys=['ttH','tHQ','ttW']
 keycolor=['red','blue','green']
 
 sampleNames={'ttH':['ttH'],
              'tHQ':['tHQ'],
              'ttW':['ttW']} #Names of process (Can be same as keys)
+
+selections={'ttH':'(Entry$%1==0)',
+             'tHQ':'(Entry$%1==0)',
+             'ttW':'(Entry$%1==0)'} #Names of process (Can be same as keys)
 
 
 fileNames={'ttH':['TTH_ctcvcp_new_Friend_Run2'],
@@ -28,9 +25,14 @@ target={'ttH':0,'tHQ':1,'ttW':2}
 sampleWeightDNN={'ttH':1,'tHQ':1,'ttW':1} #Will go to DNN loss
 sampleWeightROC={'ttH':1,'tHQ':1,'ttW':1} #Will be used while plotting ROC
 
+Varlist=["Lep1_pt","Lep2_pt","Lep1_eta","Lep2_eta","Lep1_phi","Lep2_phi","mT_lep2","mT_lep1","mindr_lep1_jet","mindr_lep2_jet","mTTH_2lss","dEtaBB_2lss","dEtaLL_BBframe_2lss","dEtaBB_LLframe_2lss","avg_dr_jet","nSelJets","met","met_phi"]
+
+Train_selection_criteria = '(Entry$%2==0)' #Even events ~50%
+Test_selection_criteria = '(Entry$%2!=0)' #Odd events ~50%
+
 ROCMask = 0.7 #ROC plot will start at this signal eff
 
-DNNDict={'epochs':100, 'batch_size':1000, 'earlyStop':True}
+DNNDict={'epochs':10, 'batch_size':1000, 'earlyStop':True}
 
 def mymodel(num_variables,optimizer,nClasses):
     from tensorflow.keras.models import Sequential

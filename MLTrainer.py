@@ -9,6 +9,7 @@
 
 import os
 import sys
+print("Packages Loaded from "+sys.executable)
 import tempfile
 os.environ['MPLCONFIGDIR'] = tempfile.mkdtemp()
 import matplotlib
@@ -56,10 +57,11 @@ seed = 7
 np.random.seed(7)
 rng = np.random.RandomState(31337)
 timestr=time.strftime("%Y%m%d-%H%M%S")
+#from tqdm import tqdm
 
 def prGreen(prt): print("\033[92m {}\033[00m" .format(prt))
     
-def load_data(inputPath,variables,criteria,keysf,sampleNamesf,fileNamesf,targetf):
+def load_data(inputPath,variables,criteriaf,keysf,sampleNamesf,fileNamesf,targetf):
     # Load dataset to .csv format file
     my_cols_list=variables+['process', 'key', 'target', 'sampleWeight']
     data = pd.DataFrame(columns=my_cols_list)
@@ -69,7 +71,7 @@ def load_data(inputPath,variables,criteria,keysf,sampleNamesf,fileNamesf,targetf
         sampleNames=sampleNamesf[key]
         fileNames = fileNamesf[key]
         target=targetf[key]
-            
+        #criteria=criteriaf[key]
         inputTree = 'Friends'
         print(sampleNames)
 
@@ -86,9 +88,9 @@ def load_data(inputPath,variables,criteria,keysf,sampleNamesf,fileNamesf,targetf
                 print(inputTree + " deosn't exists in " + inputPath+"/"+fileName+".root")
                 continue
             if tree is not None :
-                print('criteria: ', criteria)
+                print('criteria: ', criteriaf[process_index])
                 #try: chunk_arr = tree2array(tree=tree, selection=criteria, start=0, stop=100) # Can use  start=first entry, stop = final entry desired
-                try: chunk_arr = tree2array(tree=tree, selection=criteria) # Can use  start=first entry, stop = final entry desired
+                try: chunk_arr = tree2array(tree=tree, selection=criteriaf[process_index]) # Can use  start=first entry, stop = final entry desired
                 except : continue
                 else :
                     chunk_df = pd.DataFrame(chunk_arr, columns=variables)
@@ -251,6 +253,9 @@ plots_dir4 = os.path.join(output_directory,'plots4/')
 selection_criteria1 = Conf.Train_selection_criteria
 selection_criteria2 = Conf.Test_selection_criteria
 
+criteria1=[selection_criteria1+" & "+Conf.selections[key] for key in Conf.keys]
+criteria2=[selection_criteria2+" & "+Conf.selections[key] for key in Conf.keys]
+
 #Before split
 variable_list1 = Conf.Varlist
 #After split
@@ -279,8 +284,8 @@ outputdataframe_nametr = '%s/output_dataframe_tr_%s.csv' %(output_directory,sele
 outputdataframe_namete = '%s/output_dataframe_te_%s.csv' %(output_directory,selection)
 
 print('<train-DNN> Creating new data .csv @: %s . . . . ' % (inputs_file_path))
-datatr = load_data(inputs_file_path,column_headers1,selection_criteria1,keysf=Conf.keys,sampleNamesf=Conf.sampleNames,fileNamesf=Conf.fileNames,targetf=Conf.target)
-datate = load_data(inputs_file_path,column_headers1,selection_criteria2,keysf=Conf.keys,sampleNamesf=Conf.sampleNames,fileNamesf=Conf.fileNames,targetf=Conf.target)
+datatr = load_data(inputs_file_path,column_headers1,criteria1,keysf=Conf.keys,sampleNamesf=Conf.sampleNames,fileNamesf=Conf.fileNames,targetf=Conf.target)
+datate = load_data(inputs_file_path,column_headers1,criteria2,keysf=Conf.keys,sampleNamesf=Conf.sampleNames,fileNamesf=Conf.fileNames,targetf=Conf.target)
 
 print(datatr.head())
 
@@ -440,7 +445,7 @@ sns_plot=sns.heatmap(confusion_matrix,cmap="YlGnBu", annot=True, cbar=False,fmt=
 plt.savefig(od+"/confusion_matrix_test.png")
 
 
-# In[26]:
+# In[9]:
 
 
 original_stdout = sys.stdout
@@ -455,6 +460,18 @@ with open(od+'/ClassificationReport.txt', 'w') as f:
     print(metrics.classification_report(valdataset.target.astype(int), result_classes_test,target_names=Conf.keys))
     print("-----------------")
     sys.stdout = original_stdout
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
 
 
 # In[ ]:

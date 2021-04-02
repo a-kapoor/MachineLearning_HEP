@@ -1,4 +1,4 @@
-# MachineLearning_HEP
+# MachineLearning Package to do both binary and multi-class classification
 
 ### Clone
 
